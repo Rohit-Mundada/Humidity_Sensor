@@ -1,0 +1,385 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+humidity_sensor.exe -- emu8086 assembler version: 4.08  
+ 
+[ 10-07-2021  --  14:08:32 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       DATA SEGMENT
+[   2]        :                                       ; PORT ADDRESSES
+[   3]        :                                       PORTA EQU 00H
+[   4]        :                                       PORTB EQU 02H
+[   5]        :                                       PORTC EQU 04H
+[   6]        :                                       CONTROL_REG EQU 06H
+[   7]        :                                       
+[   8]        :                                       ; TEXT TO DISPLAY ON LCD
+[   9]    0000: 48 75 6D 69 64 69 74 79 3A 20 24      HUMIDITY DB "Humidity: $"
+[  10]    000B: 70 70 6D 24                           PPM DB "ppm$"
+[  11]        :                                       
+[  12]        :                                       ; VARIABLES TO KEEP TRACK OF PORT DATA
+[  13]    000F: 00                                    PORTB_VAL DB 00H
+[  14]    0010: 00                                    PORTC_VAL DB 00H
+[  15]        :                                       
+[  16]        :                                       ; MISC VARS
+[  17]    0011: 31                                    QUOTIENT DB 31H
+[  18]    0012: 32                                    REMAINDER DB 32H
+[  19]    0013: 2E                                    DECIMAL_POINT DB '.'
+[  20]    0014: 38                                    MAX_PPM DB 56
+[  21]        :                                       ENDS
+[  22]        :                                       
+[  23]        :                                       STACK SEGMENT
+[  24]    0020: 00 00 00 00 00 00 00 00 00 00 00 00   DW 128 DUP(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00                         
+[  25]        :                                       ENDS
+[  26]        :                                       
+[  27]        :                                       CODE SEGMENT
+[  28]    0120:                                       START:
+[  29]        :                                       ; SETTING SEGMENT REGISTERS
+[  30]    0120: B8 00 00                              MOV AX, DATA
+[  31]    0123: 8E D8                                 MOV DS, AX
+[  32]    0125: 8E C0                                 MOV ES, AX
+[  33]        :                                       
+[  34]        :                                       ; INITIALISING 8255 WITH PORT-A AS INPUT PORT AND PORT-B, PORT-C AS OUTPUT PORTS
+[  35]    0127: B0 90                                 MOV AL, 10010000B
+[  36]    0129: E6 06                                 OUT CONTROL_REG, AL
+[  37]        :                                       
+[  38]    012B: E8 79 00                              CALL LCD_INIT
+[  39]        :                                       
+[  40]    012E: B2 01                                 MOV DL, 01H
+[  41]    0130: B6 01                                 MOV DH, 01H
+[  42]    0132: E8 1E 01                              CALL LCD_SET_CUR
+[  43]        :                                       
+[  44]        :                                       ; GET DATA FROM ADC AND DISPLAY ON LCD
+[  45]    0135: E8 01 00                              CALL DISPLAY_HUMIDITY
+[  46]        :                                       
+[  47]    0138: F4                                    HLT
+[  48]        :                                       ; END OF MAIN PROCEDURE
+[  49]        :                                       
+[  50]        :                                       ; ============= DISPLAY HUMIDITY VALUE PROCEDURE =============
+[  51]    0139:                                       PROC DISPLAY_HUMIDITY
+[  52]    0139:                                       X1:
+[  53]    0139: E4 00                                 IN AL, PORTA
+[  54]    013B: A2 11 00                              MOV QUOTIENT, AL
+[  55]        :                                       
+[  56]    013E: E8 40 00                              CALL CHANGE_TO_PPM
+[  57]        :                                       
+[  58]    0141: B0 00                                 MOV AL, 00H
+[  59]    0143: E6 04                                 OUT PORTC, AL
+[  60]        :                                       
+[  61]    0145: B9 20 4E                              MOV CX, 20000
+[  62]    0148: E8 31 00                              CALL DELAY
+[  63]        :                                       
+[  64]    014B: B0 01                                 MOV AL, 01H
+[  65]    014D: E6 04                                 OUT PORTC, AL
+[  66]        :                                       
+[  67]    014F: E8 C4 00                              CALL LCD_CLEAR
+[  68]        :                                       
+[  69]    0152: BE 00 00                              LEA SI, HUMIDITY
+[  70]    0155: E8 EA 00                              CALL LCD_PRINTSTR
+[  71]        :                                       
+[  72]    0158: 8A 26 11 00                           MOV AH, QUOTIENT
+[  73]    015C: E8 BD 00                              CALL LCD_WRITE_CHAR
+[  74]        :                                       
+[  75]    015F: 8A 26 13 00                           MOV AH, DECIMAL_POINT
+[  76]    0163: E8 B6 00                              CALL LCD_WRITE_CHAR
+[  77]        :                                       
+[  78]    0166: 8A 26 12 00                           MOV AH, REMAINDER
+[  79]    016A: E8 AF 00                              CALL LCD_WRITE_CHAR
+[  80]        :                                       
+[  81]    016D: BE 0B 00                              LEA SI, PPM
+[  82]    0170: E8 CF 00                              CALL LCD_PRINTSTR
+[  83]        :                                       
+[  84]    0173: B9 20 4E                              MOV CX, 20000
+[  85]    0176: E8 03 00                              CALL DELAY
+[  86]        :                                       
+[  87]    0179: EB BE                                 JMP X1
+[  88]        :                                       
+[  89]    017B: C3                                    RET
+[  90]        :                                       ENDP DISPLAY_HUMIDITY
+[  91]        :                                       
+[  92]        :                                       
+[  93]        :                                       ; ============= DELAY PROCEDURE =============
+[  94]    017C:                                       PROC DELAY
+[  95]        :                                       ; HERE CX CONTROLS THE AMOUNT OF DELAY, CX=50 MEANS A DELAY OF 1 MS.
+[  96]    017C: E3 02                                 JCXZ @DELAY_END
+[  97]    017E:                                       @DEL_LOOP:
+[  98]    017E: E2 FE                                 LOOP @DEL_LOOP	
+[  99]    0180:                                       @DELAY_END:
+[ 100]    0180: C3                                    RET
+[ 101]        :                                       ENDP DELAY
+[ 102]        :                                       
+[ 103]        :                                       ; ============= ADC VALUE CONVERSION TO PPM VALUE =============
+[ 104]    0181:                                       PROC CHANGE_TO_PPM
+[ 105]        :                                       ; QUOTIENT HAS THE VALUE TO BE CONVERTED INTO PPM
+[ 106]        :                                       ; LET VALUE FROM ADC BE X
+[ 107]        :                                       ; MAX_PPM STORES THE MAXIMUM PPM TO BE SHOWN * 10
+[ 108]        :                                       ; VALUE TO BE SHOWN IN PPM = (MAX_PPM) * X / 2550
+[ 109]        :                                       ; EG. X = 255 CORRESPONDS TO MAX_PPM
+[ 110]        :                                       ; DIGIT BEFORE DECIMAL IS STORED IN QUOTIENT
+[ 111]        :                                       ; DIGIT AFTER DECIMAL IS STORED IN REMAINDER
+[ 112]    0181: A0 11 00                              MOV AL, QUOTIENT
+[ 113]    0184: B4 00                                 MOV AH, 00H ; AX = AH:AL
+[ 114]        :                                       
+[ 115]    0186: 8A 0E 14 00                           MOV CL, MAX_PPM
+[ 116]    018A: B5 00                                 MOV CH, 00H
+[ 117]    018C: F7 E1                                 MUL CX ; AX = AX * MAX_PPM
+[ 118]        :                                       
+[ 119]    018E: BB F6 09                              MOV BX, 2550
+[ 120]    0191: F7 F3                                 DIV BX ; AX = AX / 2550 AND DX = AX % 2550
+[ 121]        :                                       ; AX STORES THE QUOTIENT, DX STORES THE REMAINDER
+[ 122]        :                                       
+[ 123]    0193: 04 30                                 ADD AL, 30H ; CONVERTING HEX VALUE TO ASCII
+[ 124]    0195: A2 11 00                              MOV QUOTIENT, AL ; STORING FIRST DECIMAL ASCII
+[ 125]        :                                       
+[ 126]    0198: 8B C2                                 MOV AX, DX ; REMAINDER TRANSFERRED TO AX
+[ 127]        :                                       
+[ 128]    019A: B9 0A 00                              MOV CX, 10
+[ 129]    019D: F7 E1                                 MUL CX ; AX = AX * 10
+[ 130]        :                                       
+[ 131]    019F: F7 F3                                 DIV BX ; AX = AX / 2550
+[ 132]        :                                       ; AX STORES THE QUOTIENT, FOR THIS CASE ALL THE QUOTIENTS ARE ONLY 8 BIT SO IT IS STORED IN AL
+[ 133]        :                                       
+[ 134]    01A1: 04 30                                 ADD AL, 30H ; CONVERTING HEX VALUE TO ASCII
+[ 135]    01A3: A2 12 00                              MOV REMAINDER, AL ; STORING SECOND DECIMAL ASCII
+[ 136]        :                                       
+[ 137]    01A6: C3                                    RET
+[ 138]        :                                       ENDP CHANGE_TO_PPM
+[ 139]        :                                       
+[ 140]        :                                       ; ============= ALL LCD PROCEDURES INVOLVED =============
+[ 141]    01A7:                                       PROC LCD_INIT
+[ 142]    01A7: B0 01                                 MOV AL, 01H
+[ 143]    01A9: E8 BB 00                              CALL OUT_C ; MAKING LCD INPUT RS = RW = E = LOW (00H) AT THE START
+[ 144]        :                                       
+[ 145]    01AC: B9 E8 03                              MOV CX, 1000
+[ 146]    01AF: E8 CA FF                              CALL DELAY ; 20 MS DELAY
+[ 147]        :                                       
+[ 148]        :                                       ; RESET SEQUENCE
+[ 149]    01B2: B4 30                                 MOV AH, 30H
+[ 150]    01B4: E8 31 00                              CALL LCD_CMD
+[ 151]        :                                       
+[ 152]    01B7: B9 FA 00                              MOV CX, 250
+[ 153]    01BA: E8 BF FF                              CALL DELAY ; 250 MS DELAY
+[ 154]        :                                       
+[ 155]    01BD: B4 30                                 MOV AH, 30H
+[ 156]    01BF: E8 26 00                              CALL LCD_CMD
+[ 157]        :                                       
+[ 158]    01C2: B9 32 00                              MOV CX, 50
+[ 159]    01C5: E8 B4 FF                              CALL DELAY ; 1 MS DELAY
+[ 160]        :                                       
+[ 161]    01C8: B4 30                                 MOV AH, 30H
+[ 162]    01CA: E8 1B 00                              CALL LCD_CMD
+[ 163]        :                                       
+[ 164]    01CD: B9 F4 01                              MOV CX, 500
+[ 165]    01D0: E8 A9 FF                              CALL DELAY ; 10 MS DELAY
+[ 166]        :                                       
+[ 167]        :                                       ; SET FUNCTION
+[ 168]    01D3: B4 38                                 MOV AH, 38H
+[ 169]    01D5: E8 10 00                              CALL LCD_CMD
+[ 170]        :                                       
+[ 171]    01D8: B4 0C                                 MOV AH, 0CH
+[ 172]    01DA: E8 0B 00                              CALL LCD_CMD
+[ 173]        :                                       
+[ 174]    01DD: B4 01                                 MOV AH, 01H
+[ 175]    01DF: E8 06 00                              CALL LCD_CMD
+[ 176]        :                                       
+[ 177]    01E2: B4 06                                 MOV AH, 06H
+[ 178]    01E4: E8 01 00                              CALL LCD_CMD
+[ 179]        :                                       
+[ 180]    01E7: C3                                    RET
+[ 181]        :                                       ENDP LCD_INIT
+[ 182]        :                                       
+[ 183]    01E8:                                       PROC LCD_CMD
+[ 184]        :                                       ; AH CONTAINS THE COMMAND CODE
+[ 185]    01E8: 52                                    PUSH DX
+[ 186]    01E9: 50                                    PUSH AX
+[ 187]        :                                       
+[ 188]    01EA: A0 10 00                              MOV AL, PORTC_VAL
+[ 189]    01ED: 24 FD                                 AND AL, 0FDH ; RESET RS, AL = 1111 1101B, SINCE RS IS AT PIN PC1 OF 8255
+[ 190]    01EF: E8 75 00                              CALL OUT_C
+[ 191]        :                                       
+[ 192]        :                                       ; SET OUT DATA PINS
+[ 193]    01F2: 8A C4                                 MOV AL, AH
+[ 194]    01F4: E8 6A 00                              CALL OUT_B
+[ 195]        :                                       
+[ 196]    01F7: A0 10 00                              MOV AL, PORTC_VAL
+[ 197]    01FA: 0C 08                                 OR AL, 1000B ; SET E, AL = 0000 1000B, SINCE EN IS AT PIN PC3 OF 8255
+[ 198]    01FC: E8 68 00                              CALL OUT_C
+[ 199]        :                                       
+[ 200]    01FF: B9 32 00                              MOV CX, 50
+[ 201]    0202: E8 77 FF                              CALL DELAY ; 1 MS DELAY
+[ 202]        :                                       
+[ 203]    0205: A0 10 00                              MOV AL, PORTC_VAL
+[ 204]    0208: 24 F7                                 AND AL, 0F7H ; RESET E, AL = 1111 0111B, SINCE E IS AT PIN PC3 OF 8255
+[ 205]    020A: E8 5A 00                              CALL OUT_C
+[ 206]        :                                       
+[ 207]    020D: B9 32 00                              MOV CX, 50
+[ 208]    0210: E8 69 FF                              CALL DELAY ; 1 MS DELAY
+[ 209]        :                                       
+[ 210]    0213: 58                                    POP AX
+[ 211]    0214: 5A                                    POP DX
+[ 212]        :                                       
+[ 213]    0215: C3                                    RET
+[ 214]        :                                       ENDP LCD_CMD
+[ 215]        :                                       
+[ 216]    0216:                                       PROC LCD_CLEAR
+[ 217]    0216: B4 01                                 MOV AH, 01H
+[ 218]    0218: E8 CD FF                              CALL LCD_CMD
+[ 219]        :                                       
+[ 220]    021B: C3                                    RET
+[ 221]        :                                       ENDP LCD_CLEAR
+[ 222]        :                                       
+[ 223]    021C:                                       PROC LCD_WRITE_CHAR
+[ 224]        :                                       ; AH CONTAINS THE INFO TO DISPLAY
+[ 225]    021C: 50                                    PUSH AX
+[ 226]        :                                       
+[ 227]    021D: A0 10 00                              MOV AL, PORTC_VAL
+[ 228]    0220: 0C 02                                 OR AL, 10B ; SET RS, AL = 0000 0010B, SINCE RS IS AT PIN PC1 OF 8255
+[ 229]    0222: E8 42 00                              CALL OUT_C
+[ 230]        :                                       
+[ 231]        :                                       ; SET OUT DATA PINS
+[ 232]    0225: 8A C4                                 MOV AL, AH
+[ 233]    0227: E8 37 00                              CALL OUT_B
+[ 234]        :                                       
+[ 235]    022A: A0 10 00                              MOV AL, PORTC_VAL
+[ 236]    022D: 0C 08                                 OR AL, 1000B ; SET E, AL = 0000 1000B, SINCE EN IS AT PIN PC3 OF 8255
+[ 237]    022F: E8 35 00                              CALL OUT_C
+[ 238]        :                                       
+[ 239]    0232: B9 32 00                              MOV CX, 50
+[ 240]    0235: E8 44 FF                              CALL DELAY ; 1 MS DELAY
+[ 241]        :                                       
+[ 242]    0238: A0 10 00                              MOV AL, PORTC_VAL
+[ 243]    023B: 24 F7                                 AND AL, 0F7H ; RESET E, AL = 1111 0111B, SINCE E IS AT PIN PC3 OF 8255
+[ 244]    023D: E8 27 00                              CALL OUT_C
+[ 245]        :                                       
+[ 246]    0240: 58                                    POP AX
+[ 247]        :                                       
+[ 248]    0241: C3                                    RET
+[ 249]        :                                       ENDP LCD_WRITE_CHAR
+[ 250]        :                                       
+[ 251]    0242:                                       PROC LCD_PRINTSTR
+[ 252]        :                                       ; SI CONTAINS THE ADDRESS OF THE STRING ENDING WITH '$'
+[ 253]    0242: 56                                    PUSH SI
+[ 254]    0243: 50                                    PUSH AX
+[ 255]        :                                       
+[ 256]    0244:                                       @LCD_PRINTSTR_LT:
+[ 257]    0244: AC                                    LODSB
+[ 258]    0245: 3C 24                                 CMP AL, '$'
+[ 259]    0247: 74 07                                 JE @LCD_PRINTSTR_EXIT
+[ 260]    0249: 8A E0                                 MOV AH, AL
+[ 261]    024B: E8 CE FF                              CALL LCD_WRITE_CHAR
+[ 262]    024E: EB F4                                 JMP @LCD_PRINTSTR_LT
+[ 263]        :                                       
+[ 264]    0250:                                       @LCD_PRINTSTR_EXIT:
+[ 265]    0250: 58                                    POP AX
+[ 266]    0251: 5E                                    POP SI
+[ 267]        :                                       
+[ 268]    0252: C3                                    RET
+[ 269]        :                                       ENDP LCD_PRINTSTR
+[ 270]        :                                       
+[ 271]    0253:                                       PROC LCD_SET_CUR
+[ 272]        :                                       ; DH = ROW, DL = COL
+[ 273]    0253: 50                                    PUSH AX
+[ 274]        :                                       
+[ 275]        :                                       ; LCD USES 0 INDEXING FOR COLUMNS
+[ 276]    0254: FE CE                                 DEC DH
+[ 277]        :                                       
+[ 278]        :                                       ; DL = 1
+[ 279]    0256: B4 80                                 MOV AH, 80H
+[ 280]    0258: EB 00                                 JMP @LCD_SET_CUR_ENDCASE
+[ 281]        :                                       
+[ 282]    025A:                                       @LCD_SET_CUR_ENDCASE:
+[ 283]    025A: 02 E6                                 ADD AH, DH
+[ 284]    025C: E8 89 FF                              CALL LCD_CMD
+[ 285]        :                                       
+[ 286]    025F: 58                                    POP AX
+[ 287]        :                                       
+[ 288]    0260: C3                                    RET
+[ 289]        :                                       ENDP LCD_SET_CUR
+[ 290]        :                                       
+[ 291]    0261:                                       PROC OUT_B
+[ 292]        :                                       ; AL CONTAINS THE DATA TO OUTPUT AND THIS IS STORED IN PORTB_VAL
+[ 293]    0261: E6 02                                 OUT PORTB, AL
+[ 294]    0263: A2 0F 00                              MOV PORTB_VAL, AL
+[ 295]        :                                       
+[ 296]    0266: C3                                    RET
+[ 297]        :                                       ENDP OUT_B
+[ 298]        :                                       
+[ 299]    0267:                                       PROC OUT_C
+[ 300]        :                                       ; AL CONTAINS THE DATA TO OUTPUT AND THIS IS STORED IN PORTC_VAL
+[ 301]    0267: E6 04                                 OUT PORTC, AL
+[ 302]    0269: A2 10 00                              MOV PORTC_VAL, AL
+[ 303]        :                                       
+[ 304]    026C: C3                                    RET
+[ 305]        :                                       ENDP OUT_C
+[ 306]        :                                       
+[ 307]        :                                       CODE ENDS
+[ 308]        :                                       END START
+[ 309]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 6D      -   bytes on last page (l.byte)
+0003: 00      -   bytes on last page (h.byte)
+0004: 03      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 02      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: DF      -   check sum (l.byte)
+0013: B8      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 12      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 12      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

@@ -1,0 +1,37 @@
+< THE SYMBOL TABLE >  humidity_sensor.exe  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+HUMIDITY                 	00000     	1         	VAR       	DATA      
+PPM                      	0000B     	1         	VAR       	DATA      
+PORTB_VAL                	0000F     	1         	VAR       	DATA      
+PORTC_VAL                	00010     	1         	VAR       	DATA      
+QUOTIENT                 	00011     	1         	VAR       	DATA      
+REMAINDER                	00012     	1         	VAR       	DATA      
+DECIMAL_POINT            	00013     	1         	VAR       	DATA      
+MAX_PPM                  	00014     	1         	VAR       	DATA      
+STACK                    	00002     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00012     	-5        	SEGMENT   	(ITSELF)  
+START                    	00000     	-1        	LABEL     	CODE      
+DISPLAY_HUMIDITY         	00019     	-1        	NEAR      	CODE      
+X1                       	00019     	-1        	LABEL     	CODE      
+DELAY                    	0005C     	-1        	NEAR      	CODE      
+@DEL_LOOP                	0005E     	-1        	LABEL     	CODE      
+@DELAY_END               	00060     	-1        	LABEL     	CODE      
+CHANGE_TO_PPM            	00061     	-1        	NEAR      	CODE      
+LCD_INIT                 	00087     	-1        	NEAR      	CODE      
+LCD_CMD                  	000C8     	-1        	NEAR      	CODE      
+LCD_CLEAR                	000F6     	-1        	NEAR      	CODE      
+LCD_WRITE_CHAR           	000FC     	-1        	NEAR      	CODE      
+LCD_PRINTSTR             	00122     	-1        	NEAR      	CODE      
+@LCD_PRINTSTR_LT         	00124     	-1        	LABEL     	CODE      
+@LCD_PRINTSTR_EXIT       	00130     	-1        	LABEL     	CODE      
+LCD_SET_CUR              	00133     	-1        	NEAR      	CODE      
+@LCD_SET_CUR_ENDCASE     	0013A     	-1        	LABEL     	CODE      
+OUT_B                    	00141     	-1        	NEAR      	CODE      
+OUT_C                    	00147     	-1        	NEAR      	CODE      
+===================================================================================================
+[ 10-07-2021  --  14:08:32 ] 
+< END >
+ 
