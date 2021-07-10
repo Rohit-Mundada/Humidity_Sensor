@@ -15,18 +15,18 @@ Below are some of the screen shots of the circuit designed and the humidity outp
 
 - - - -
 
-- #### 8086 microprocessor interfacing circuit to demultiplex address and data lines ####
+1. ### 8086 microprocessor interfacing circuit to demultiplex address and data lines ###
 ![8086_interfacing](./Images/8086_interfacing.png)
-    - __8086 microprocessor__
+    1. #### 8086 microprocessor ####
     ![8086_mup](./Images/8086_mup.png)
-    - __74LS373 (Octal Latch) for Address de-multiplexing__
+    2. #### 74LS373 (Octal Latch) for Address de-multiplexing ####
     ![74LS373](./Images/74LS373.png)
-    - __74LS245 (8 bit bi-directional buffer) for Data de-multiplexing__
+    3. #### 74LS245 (8 bit bi-directional buffer) for Data de-multiplexing ####
     ![74LS245](./Images/74LS245.png)
 
-- #### Memory Interfacing along with peripheral I/O Interfacing ####
+2. ### Memory Interfacing along with peripheral I/O Interfacing ###
 ![memory_interfacing](./Images/memory_interfacing.png)
-    - __ROM and RAM chip select decoding logic__
+    1. #### ROM and RAM chip select decoding logic ####
     ![memory_decoding](./Images/memory_decoding.png)
     - __READ and WRITE Enable for EVEN and ODD Banks of ROM and RAM__
     ![even_odd_bank_select](./Images/even_odd_bank_select.png)
@@ -49,4 +49,3 @@ Below are some of the screen shots of the circuit designed and the humidity outp
     ![adc_interfacing](./Images/adc_interfacing.png)
     - __LCD Output Display__
     ![lcd_output](./Images/lcd_output.png)
-    
