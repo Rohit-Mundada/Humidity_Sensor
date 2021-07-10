@@ -18,9 +18,9 @@ Below are some of the screen shots of the circuit designed and the humidity outp
 1. 8086 microprocessor interfacing circuit to demultiplex address and data lines
 ![8086_interfacing](./Images/8086_interfacing.png)
     1. 8086 microprocessor
-    ![8086_mup](8086_mup.png)
+    ![8086_mup](./Images/8086_mup.png)
     2. 74LS373 (Octal Latch) for Address de-multiplexing
-    ![74LS373](74LS373.png)
+    ![74LS373](./Images/74LS373.png)
     3. 74LS245 (8 bit bi-directional buffer) for Data de-multiplexing
-    ![74LS245](74LS245.png)
+    ![74LS245](./Images/74LS245.png)
 
