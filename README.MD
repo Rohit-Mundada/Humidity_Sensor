@@ -72,6 +72,8 @@ Below are some of the screen shots of the circuit designed and the humidity outp
 
 - - - -
 
+## Humidity Circuit Model ##
+
 The humidity sensor in the above circuit was modelled by a Voltage Controlled Current Source (VCCS) and the voltage was changed by using a potentiometer. This current was then passed on to a resistance of value 47.619 kOhm, which comes from the max input voltage to the ADC which is 5V and the max output current of the sensor as 105 micro Amp. The transconductance of the VCCS was also modified (21 micro Amp/V) to support 105 micro Amp current for the total length of the potentiometer. 
 
 This output was fed to the ADC, which is a 1-channel 8 bit ADC. This ADC was controlled by the WR pin with the help of 8255 PPI controller and the output of the ADC was given as input to 8255.
@@ -79,6 +81,9 @@ This output was fed to the ADC, which is a 1-channel 8 bit ADC. This ADC was con
 8255 was operated in I/O mode along with port-A as input port while port-B and port-C as output port. The LCD display unit LM020L was connected to the port-B of 8255, and remaining control signals required for ADC and LCD display were given by port-C pins PC0, PC1, PC2, PC3.
 
 - - - - 
+
+
+## Logic for the Code ##
 
 The code was written in assembly language in a modular manner. The main program is at the top followed by all the procedures involved. The max ppm value that can be shown on the LCD screen was stored in a variable and it can be easily changed without affecting any other part of the program. A simple equation was used to derive the ppm value. 
 
